@@ -1,0 +1,192 @@
+<project default="run">
+
+  <!-- Generic build.xml for W11, CS56
+		Edit Project Name and webBaseURL and webRoot as needed.
+		Also, please edit index.html to reflect current project!
+		name: Johan Henkens -->
+	<property environment="env"/> <!-- load the environment variables --> 
+	
+	<!-- CHANGE THESE FOR EACH PROJECT AS NEEDED -->
+	<property name="projectName" value="hfj13" />	
+	<property name="webRoot" value="${env.HOME}/public_html/cs56" />
+	<property name="webBaseUrl" value="http://www.cs.ucsb.edu/~${env.USER}/cs56" />
+	<!-- IF MAIN CLASS EXISTS, USE THIS VARIABLE AND UNCOMMENT MANIFEST LINE 88. ALSO UNCOMMENT LINE 49-42-->
+	<property name="mainClass" value=""/> 
+	<property name="fullPkg" value="edu.ucsb.cs56.W11.hfj.ch13.${env.USER}" />
+	<property name="guiPage404" value="GuiPage404"/>
+	<property name="guiPage408" value="GuiPage408"/>
+	<property name="guiPage411" value="GuiPage411"/>
+	<property name="guiNoDumb" value="GuiNoDumbQuestions"/>
+	
+	<!-- DONE WITH CHANGES -->
+	
+	<property name="archiveName" value="cs56_W11_${projectName}"/>
+	<property name="javadocDest" value="${webRoot}/${projectName}/javadoc" /> 
+	<property name="javadocURL" value="${webBaseUrl}/${projectName}/javadoc" /> 
+	<property name="junit" value="/cs/faculty/pconrad/public_html/cs56/lib/junit-4.8.2.jar"/>
+	<property name="jwsDest" value="${webRoot}/${projectName}/jws" /> 
+    <property name="jwsURL" value="${webBaseUrl}/${projectName}/jws" /> 
+    
+	<target name="compile" description="compiles the project">
+		<mkdir dir="build"/>
+		<javac srcdir="src" debug="on" debuglevel="lines,vars,source" destdir="build">
+			<classpath>                                                                                                                              
+				<pathelement location="."/>                                                                                                          
+				<pathelement location="${junit}"/>                                                   
+			</classpath>
+		</javac>        
+	</target>
+	
+	<target name="run" description="Tells the users how to run the guis">
+		<echo>
+			To run the guis, enter one of the following ant commands:
+				ant guiPage404
+				ant guiPage408
+				ant guiPage411
+				ant guiNoDumbQuestions
+		</echo>
+	</target>
+	
+	<target name="guiPage404" depends="compile" description="runs the BorderLayout Gui Example">
+		<java fork="true" classname="${fullPkg}.${guiPage404}" classpath="build" /> 
+    </target>
+	
+	<target name="guiPage408" depends="compile" description="runs the FlowLayout Gui Example">
+		<java fork="true" classname="${fullPkg}.${guiPage408}" classpath="build" /> 
+    </target>
+	
+	<target name="guiPage411" depends="compile" description="runs the FlowLayout Gui Example">
+		<java fork="true" classname="${fullPkg}.${guiPage408}" classpath="build" /> 
+    </target>
+	
+	<target name="guiNoDumbQuestions" depends="compile" description="runs the No Dumb Questions example">
+		<java fork="true" classname="${fullPkg}.${guiNoDumb}" classpath="build" /> 
+    </target>
+	
+    <target name="clean" description="cleans up to remove ant generated files">
+		<delete dir="build" quiet="true" />
+		<delete dir="javadoc" quiet="true" />
+		<delete dir="dist" quiet="true" />
+		<delete dir="download" quiet="true" />                                         
+		<delete dir="temp" quiet="true" />         
+	</target>
+	<target name="test" depends="compile"  description="runs junit tests">
+		<junit fork="yes" haltonerror="no" haltonfailure="no" failureproperty="SomeJUnitTestsFailed">
+			<classpath>
+				<pathelement location="${junit}"/>
+				<pathelement location="build"/>
+			</classpath>
+			<batchtest fork="yes">
+				<fileset dir="src/tests">
+					<!-- this will pick up every class with a name ending in Test -->
+					<include name="**/*Test.java"/>
+				</fileset>
+			</batchtest>
+			<formatter type="plain" usefile="false" /> 
+		</junit>
+	</target>
+	<target name="javadoc" depends="compile" description="creates javadoc for the project">
+		<delete dir="javadoc" quiet="true" />		
+		<javadoc  destdir="javadoc" author="true" version="true" use="true" >
+			<fileset dir="src" includes="**/*.java"/>
+			<classpath>
+				<pathelement location="${junit}"/>
+			</classpath>
+			<link href="http://java.sun.com/javase/6/docs/api/" />                                                                                     
+		</javadoc>
+		
+	</target>
+	<target name="jar" depends="compile" description="creates a jar file of the project">
+		<mkdir dir="dist" />
+			<jar destfile="dist/${archiveName}.jar" basedir="build" >
+				<manifest>
+					<attribute name="Main-Class" value="${fullPkg}.${mainClass}"/>
+				</manifest>
+			</jar>
+	</target>
+	<target name="download" description="creates a zip and tarball of the sources files for the project">
+		<delete quiet="true">
+			<fileset dir="temp" includes="**/*" />
+			<fileset dir="download" includes="**/*" />
+		</delete>
+		<mkdir dir="download" />
+		<mkdir dir="temp" />
+		<mkdir dir="temp/${archiveName}" />
+		<copy todir="temp/${archiveName}">
+			<fileset dir="." excludes="build/**, nbproject/**, .*, javadoc/**, **/*~, temp/**, dist/**, download/**"/>
+		</copy>
+
+		<tar destfile="temp/${archiveName}.tar"
+			basedir="temp"
+			includes="${archiveName}/**"
+		/>
+
+		<gzip zipfile="download/${archiveName}.tgz"
+			src="temp/${archiveName}.tar" />
+		<zip destfile="download/${archiveName}.zip"
+			basedir="temp"
+			includes="${archiveName}/**"
+		/>
+
+		<delete quiet="true">
+			<fileset dir="temp" includes="**/*"/>
+		</delete>
+
+	</target> 
+	<target name="publish" depends="clean,test,jar,javadoc,download" description="publishes the zips, tarballs, source, etc. to the website">
+		<delete dir="${webRoot}/${projectName}"/>
+		<mkdir dir="${webRoot}/${projectName}" />
+
+		<delete dir="${webRoot}/${projectName}/browse" />
+		<mkdir dir="${webRoot}/${projectName}/browse" />
+
+		<delete dir="${webRoot}/${projectName}/download" />
+		<mkdir dir="${webRoot}/${projectName}/download" />
+		
+		<delete dir="${javadocDest}" />
+		
+		<delete dir="${webRoot}/${projectName}/jws" />
+		<mkdir dir="${webRoot}/${projectName}/jws" />
+
+		<copy todir="${javadocDest}" >
+			<fileset dir="javadoc"/>
+		</copy>
+
+		<copy todir="${webRoot}/${projectName}">
+			<fileset dir="html"/>
+		</copy>
+
+		<copy todir="${webRoot}/${projectName}/download" >
+			<fileset dir="download"/>
+			<fileset dir="dist" />
+		</copy>
+		
+		<copy todir="${webRoot}/${projectName}" >
+			<fileset dir="download"/>
+			<fileset dir="dist" />
+		</copy>
+		
+		
+		<copy todir="${webRoot}/${projectName}/browse">
+			<fileset dir="." excludes="build/**, nbproject/**, .*, javadoc/**, **/*~, html/**, temp/**, dist/**, download/**, jws/**"/>
+		</copy>
+
+		<copy todir="${webRoot}/${projectName}/browse/src" >
+			<fileset dir="src"/>
+		</copy>
+
+		
+		<copy todir="${jwsDest}" file="dist/${archiveName}.jar" />
+		<copy todir="${jwsDest}" >
+			<fileset dir="jws" includes="*.html"/>
+			<fileset dir="jws" includes="*.jnlp"/>
+			<fileset dir="jws" includes="*.png"/>
+			<fileset dir="jws" includes=".htaccess"/>
+		</copy>
+   
+		<chmod dir="${webRoot}/${projectName}"
+			perm="755" type="both" includes="**/*"/>
+			
+		<echo>Project published to ${webBaseUrl}/${projectName}</echo>                 
+	</target>           
+</project>
