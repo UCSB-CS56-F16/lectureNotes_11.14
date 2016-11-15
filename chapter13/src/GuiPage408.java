@@ -1,5 +1,3 @@
-package edu.ucsb.cs56.W11.hfj.ch13.vladam;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;

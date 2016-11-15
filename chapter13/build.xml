@@ -48,19 +48,19 @@
 	</target>
 	
 	<target name="guiPage404" depends="compile" description="runs the BorderLayout Gui Example">
-		<java fork="true" classname="${fullPkg}.${guiPage404}" classpath="build" /> 
+		<java fork="true" classname="${guiPage404}" classpath="build" /> 
     </target>
 	
 	<target name="guiPage408" depends="compile" description="runs the FlowLayout Gui Example">
-		<java fork="true" classname="${fullPkg}.${guiPage408}" classpath="build" /> 
+		<java fork="true" classname="${guiPage408}" classpath="build" /> 
     </target>
 	
 	<target name="guiPage411" depends="compile" description="runs the FlowLayout Gui Example">
-		<java fork="true" classname="${fullPkg}.${guiPage408}" classpath="build" /> 
+		<java fork="true" classname="${guiPage411}" classpath="build" /> 
     </target>
 	
 	<target name="guiNoDumbQuestions" depends="compile" description="runs the No Dumb Questions example">
-		<java fork="true" classname="${fullPkg}.${guiNoDumb}" classpath="build" /> 
+		<java fork="true" classname="${guiNoDumb}" classpath="build" /> 
     </target>
 	
     <target name="clean" description="cleans up to remove ant generated files">
